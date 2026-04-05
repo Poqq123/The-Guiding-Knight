@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Guiding Knight</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="app">
+      <section class="hero">
+        <p class="eyebrow">Educational Analysis Tool</p>
+        <h1>The Guiding Knight</h1>
+        <p class="subtitle">
+          Detect a position from the current page or paste a FEN string, then study candidate moves with a browser engine.
+        </p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Suggestion Mode</h2>
+        </div>
+        <div class="mode-switch" role="tablist" aria-label="Suggestion mode">
+          <button id="automaticModeButton" class="mode-option mode-option-active" type="button" role="tab" aria-selected="true">
+            Automatic
+          </button>
+          <button id="manualModeButton" class="mode-option" type="button" role="tab" aria-selected="false">
+            Manual
+          </button>
+        </div>
+        <p id="modeDescription" class="muted">
+          Automatic mode keeps the popup focused on overlay settings while the page detects positions for you.
+        </p>
+      </section>
+
+      <section id="automaticSummary" class="panel">
+        <div class="panel-header">
+          <h2>Automatic Suggestions</h2>
+        </div>
+        <p class="muted">
+          Supported boards are watched automatically. Use the settings below to control overlay visibility, auto depth, and how the move hints appear.
+        </p>
+      </section>
+
+      <section id="manualControls" class="controls" hidden>
+        <label class="label" for="fenInput">Position (FEN)</label>
+        <textarea id="fenInput" spellcheck="false" rows="4" placeholder="Paste or detect a full FEN string here..."></textarea>
+
+        <div class="row">
+          <button id="detectButton" class="secondary" type="button">Detect From Page</button>
+          <button id="analyzeButton" class="primary" type="button">Analyze Position</button>
+        </div>
+
+        <div class="row row-tight">
+          <label class="label-inline" for="depthInput">Depth</label>
+          <input id="depthInput" type="number" min="6" max="24" step="1" value="12">
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Status</h2>
+          <span id="statusBadge" class="badge idle">Idle</span>
+        </div>
+        <p id="statusText" class="status-text">
+          The popup is starting the bundled Stockfish engine.
+        </p>
+      </section>
+
+      <section id="diagnosticsPanel" class="panel">
+        <div class="panel-header">
+          <h2>Detection Diagnostics</h2>
+          <span id="detectionConfidenceBadge" class="badge diagnostic-neutral">No Position</span>
+        </div>
+        <p id="sourceText" class="muted">No page position detected yet.</p>
+        <p id="detectionSummaryText" class="muted">
+          Detect from page to inspect source confidence and any caveats before trusting the suggestion.
+        </p>
+        <ul id="diagnosticsList" class="diagnostic-list">
+          <li class="diagnostic-empty">No detection details yet.</li>
+        </ul>
+        <ul id="warningList" class="diagnostic-list diagnostic-list-warning" hidden></ul>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Overlay</h2>
+        </div>
+        <label class="toggle-row" for="overlayToggle">
+          <span>Always show on-board suggestions</span>
+          <input id="overlayToggle" type="checkbox" checked>
+        </label>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Settings</h2>
+        </div>
+        <div class="settings-grid">
+          <label class="toggle-row" for="autoAnalyzeToggle">
+            <span>Auto-analyze</span>
+            <input id="autoAnalyzeToggle" type="checkbox" checked>
+          </label>
+          <label class="toggle-row" for="myTurnOnlyToggle">
+            <span>Only on my turn</span>
+            <input id="myTurnOnlyToggle" type="checkbox">
+          </label>
+          <label class="toggle-row" for="showArrowToggle">
+            <span>Show move arrow</span>
+            <input id="showArrowToggle" type="checkbox" checked>
+          </label>
+          <label class="toggle-row" for="showDestinationToggle">
+            <span>Show destination highlight</span>
+            <input id="showDestinationToggle" type="checkbox" checked>
+          </label>
+          <label class="toggle-row" for="showSecondCandidateToggle">
+            <span>Show second candidate arrow</span>
+            <input id="showSecondCandidateToggle" type="checkbox" checked>
+          </label>
+          <label class="setting-field" for="settingsDepthInput">
+            <span class="label-inline">Auto depth</span>
+            <input id="settingsDepthInput" type="number" min="6" max="24" step="1" value="10">
+          </label>
+          <label class="setting-field setting-field-stack" for="controlsOpacityInput">
+            <span class="setting-copy">
+              <span class="label-inline">Overlay controls opacity</span>
+              <strong id="controlsOpacityValue">90%</strong>
+            </span>
+            <input id="controlsOpacityInput" type="range" min="20" max="100" step="5" value="90">
+          </label>
+          <label class="setting-field setting-field-stack" for="moveOpacityInput">
+            <span class="setting-copy">
+              <span class="label-inline">Arrow and highlight opacity</span>
+              <strong id="moveOpacityValue">85%</strong>
+            </span>
+            <input id="moveOpacityInput" type="range" min="20" max="100" step="5" value="85">
+          </label>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Suggestion</h2>
+        </div>
+        <dl class="results">
+          <div>
+            <dt>Best Move</dt>
+            <dd id="bestMove">-</dd>
+          </div>
+          <div>
+            <dt>Evaluation</dt>
+            <dd id="evalText">-</dd>
+          </div>
+          <div>
+            <dt>Score</dt>
+            <dd id="scoreText">-</dd>
+          </div>
+          <div>
+            <dt>Principal Variation</dt>
+            <dd id="pvText">-</dd>
+          </div>
+          <div>
+            <dt>Top Candidates</dt>
+            <dd>
+              <ol id="candidateList" class="candidate-list">
+                <li class="candidate-empty">No candidate lines yet.</li>
+              </ol>
+            </dd>
+          </div>
+        </dl>
+      </section>
+    </main>
+
+    <script src="shared/settings.js"></script>
+    <script src="shared/helpers.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
